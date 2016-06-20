@@ -18,8 +18,8 @@ public class CarReportsSourceTest {
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
         DataStream<String> reports = env.addSource(new CarReportsSource<String>(inputFile)).returns(String.class);
-        reports.timeWindowAll(Time.seconds(20));
-        reports.map(str -> str).print();
+        reports.timeWindowAll(Time.seconds(2));
+        reports.print();
 
         env.execute("CarReportsSourceTest");
     }
