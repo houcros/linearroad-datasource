@@ -5,63 +5,62 @@ import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.streaming.api.watermark.Watermark;
 
 import java.io.*;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
 
 /**
  * Created by houcros on 19/06/16.
  */
-public class CarReportsSource<T> implements SourceFunction<T>, Checkpointed<Long> {
+public class CarReportsSource<T> implements SourceFunction<T> {
     private long count = 0L;
     private volatile boolean isRunning = true;
-    private String inputFile;
-    private int tolerance = 5; // Tolerance to emit the watermarks
-    private Long timer = 0L; // Keep the last timestamp when a watermark was emitted
+    private String inputPath;
 
     public CarReportsSource(){
 
     }
 
-    public CarReportsSource(String inputFilePath) throws FileNotFoundException {
-        inputFile = inputFilePath;
+    public CarReportsSource(String inputFile) throws FileNotFoundException, URISyntaxException {
+        URL resource = CarReportsSource.class.getClassLoader().getResource(inputFile);
+        inputPath = Paths.get(resource.toURI()).toString();
     }
 
     public void run(SourceContext<T> ctx) {
-        // Init buffer
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-        InputStream in = classLoader.getResourceAsStream(inputFile);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 
-        while (isRunning /*&& count < 1000*/) {
-            String line;
-            try {
-                line = reader.readLine();
-            } catch (IOException e) {
-                e.printStackTrace();
-                isRunning = false;
-                break;
-            }
-            if (line == null) {isRunning = false;break;} // No more lines in the file
-            if (line.length() == 0) continue;
-
-            // Collect report with the timestamp from the report
-            Long tmp = Long.valueOf(line.split(",")[1]); // The second element is the timestamp of the report
-            synchronized (ctx.getCheckpointLock()) {
-                    ctx.collectWithTimestamp((T)line, tmp);
+        de.twiechert.linroad.jdriver.DataDriver dataDriver = new de.twiechert.linroad.jdriver.DataDriver();
+        dataDriver.getLibrary().startProgram(inputPath, new de.twiechert.linroad.jdriver.DataDriverLibrary.TupleReceivedCallback() {
+            @Override
+            public void invoke(String s) {
+                  /*
+                  report items are
+                  report(0): type (0-> position report, etc.)
+                  report(1): timestamp position report emitted (0...10799 (second))
+                  report(2): vehicle identifier (0...MAXINT)
+                  report(3): speed of the vehicle (0...100)
+                  report(4): express way (0...L-1)
+                  report(5): lane (0...4)
+                  report(6): direction (0..1)
+                  report(7): segment (0...99)
+                  report(8): position of the vehicle (0...527999)
+                  report(9): query identifier
+                  report(10): start segment
+                  report(11): end segment
+                  report(12): day of week (1..7)
+                  report(13): minute number in the day (1...1440)
+                  report(14): 1->yesterday, 69->10 weeks ago (1..69)
+                  */
+                Long tmp = Long.valueOf(s.split(",")[1]); // The second element is the timestamp of the report
+                synchronized (ctx.getCheckpointLock()) {
+                    ctx.collectWithTimestamp((T)s, tmp);
                     count++;
+                }
             }
-            // Emit watermark for current timestamp when some tolerance time units have elapsed
-            if (tmp > timer + tolerance){
-                timer = tmp;
-                ctx.emitWatermark(new Watermark(timer));
-            }
-
-        }
+        });
     }
 
     public void cancel() {
         isRunning = false;
     }
 
-    public Long snapshotState(long checkpointId, long checkpointTimestamp) { return count; }
-
-    public void restoreState(Long state) { this.count = state; }
 }
