@@ -28,12 +28,10 @@ public class CarReportsSource<T> implements SourceFunction<T> {
 
     public void run(SourceContext<T> ctx) {
 
-        while (isRunning /*&& count < 1000*/) {
-
-            de.twiechert.linroad.jdriver.DataDriver dataDriver = new de.twiechert.linroad.jdriver.DataDriver();
-            dataDriver.getLibrary().startProgram(inputPath, new de.twiechert.linroad.jdriver.DataDriverLibrary.TupleReceivedCallback() {
-                @Override
-                public void invoke(String s) {
+        de.twiechert.linroad.jdriver.DataDriver dataDriver = new de.twiechert.linroad.jdriver.DataDriver();
+        dataDriver.getLibrary().startProgram(inputPath, new de.twiechert.linroad.jdriver.DataDriverLibrary.TupleReceivedCallback() {
+            @Override
+            public void invoke(String s) {
                   /*
                   report items are
                   report(0): type (0-> position report, etc.)
@@ -52,14 +50,13 @@ public class CarReportsSource<T> implements SourceFunction<T> {
                   report(13): minute number in the day (1...1440)
                   report(14): 1->yesterday, 69->10 weeks ago (1..69)
                   */
-                    Long tmp = Long.valueOf(s.split(",")[1]); // The second element is the timestamp of the report
-                    synchronized (ctx.getCheckpointLock()) {
-                        ctx.collectWithTimestamp((T)s, tmp);
-                        count++;
-                    }
+                Long tmp = Long.valueOf(s.split(",")[1]); // The second element is the timestamp of the report
+                synchronized (ctx.getCheckpointLock()) {
+                    ctx.collectWithTimestamp((T)s, tmp);
+                    count++;
                 }
-            });
-        }
+            }
+        });
     }
 
     public void cancel() {
