@@ -24,12 +24,19 @@ public class CarReportsSourceTest {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
-        DataStream<String> reports = env.addSource(new CarReportsSource<String>(inputFile)).returns(String.class);
-        AllWindowedStream<String, TimeWindow> b = reports.windowAll(TumblingEventTimeWindows.of(Time.seconds(3)));
-        b.apply(new AllWindowFunction<String, Object, TimeWindow>() {
+        DataStream<int[]> reports = env.addSource(new CarReportsSource<int[]>(inputFile)).returns(int[].class);
+        AllWindowedStream<int[], TimeWindow> b = reports.windowAll(TumblingEventTimeWindows.of(Time.seconds(3)));
+        b.apply(new AllWindowFunction<int[], Object, TimeWindow>() {
             @Override
-            public void apply(TimeWindow timeWindow, Iterable<String> iterable, Collector<Object> collector) throws Exception {
-                collector.collect("Notif");
+            public void apply(TimeWindow timeWindow, Iterable<int[]> iterable, Collector<Object> collector) throws Exception {
+                String out = "Window: " + String.valueOf(timeWindow.getStart()) + "\n";
+                for (int[] report : iterable){
+                    for (int reportItem : report) {
+                        out += reportItem + " ";
+                    }
+                    out += "\n";
+                }
+                collector.collect(out);
             }
         }).print();
 

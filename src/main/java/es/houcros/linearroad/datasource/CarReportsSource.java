@@ -14,10 +14,14 @@ import java.nio.file.Paths;
  * Created by houcros on 19/06/16.
  */
 public class CarReportsSource<T> implements SourceFunction<T> {
+
+    /* We don't use this yet, but it might come in handy later */
     private long count = 0L;
     private volatile boolean isRunning = true;
 
+    /* The input file must be a resource (i.e., located in the *resources* directory */
     private String inputPath;
+    /* We keep the timestamp of the last recieved report for watermarking */
     private long currentTimestamp = -1000L; // Timestamp in milis in Flink!
 
     public CarReportsSource(){
@@ -53,10 +57,19 @@ public class CarReportsSource<T> implements SourceFunction<T> {
                   report(13): minute number in the day (1...1440)
                   report(14): 1->yesterday, 69->10 weeks ago (1..69)
                   */
-                Long tmp = Long.valueOf(s.split(",")[1])*1000; // The second element is the timestamp of the report
-                //System.out.println(tmp);
+
+                // Cast the report to ints
+                String[] report = s.split(",");
+                int[] reportInt = new int[report.length];
+                for (int i = 0; i < report.length; ++i) reportInt[i] = Integer.valueOf(report[i].trim());
+
+                // The second element is the timestamp of the report
+                Long tmp = Long.valueOf(report[1])*1000;
+
+                // Collect
                 synchronized (ctx.getCheckpointLock()) {
-                    ctx.collectWithTimestamp((T)s, tmp);
+                    ctx.collectWithTimestamp((T)reportInt, tmp);
+                    // We know that the data comes sorted by timestamp, so the watermarking is simple
                     if (tmp > currentTimestamp){
                         ctx.emitWatermark(new Watermark(tmp));
                         currentTimestamp = tmp;
