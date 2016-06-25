@@ -1,5 +1,6 @@
 package es.houcros.linearroad.datasource;
 
+import org.apache.flink.hadoop.shaded.org.apache.http.impl.conn.SystemDefaultDnsResolver;
 import org.apache.flink.streaming.api.checkpoint.Checkpointed;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.streaming.api.watermark.Watermark;
@@ -15,7 +16,9 @@ import java.nio.file.Paths;
 public class CarReportsSource<T> implements SourceFunction<T> {
     private long count = 0L;
     private volatile boolean isRunning = true;
+
     private String inputPath;
+    private long currentTimestamp = -1000L; // Timestamp in milis in Flink!
 
     public CarReportsSource(){
 
@@ -50,9 +53,14 @@ public class CarReportsSource<T> implements SourceFunction<T> {
                   report(13): minute number in the day (1...1440)
                   report(14): 1->yesterday, 69->10 weeks ago (1..69)
                   */
-                Long tmp = Long.valueOf(s.split(",")[1]); // The second element is the timestamp of the report
+                Long tmp = Long.valueOf(s.split(",")[1])*1000; // The second element is the timestamp of the report
+                //System.out.println(tmp);
                 synchronized (ctx.getCheckpointLock()) {
                     ctx.collectWithTimestamp((T)s, tmp);
+                    if (tmp > currentTimestamp){
+                        ctx.emitWatermark(new Watermark(tmp));
+                        currentTimestamp = tmp;
+                    }
                     count++;
                 }
             }
