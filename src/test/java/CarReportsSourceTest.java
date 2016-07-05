@@ -1,6 +1,7 @@
 import es.houcros.linearroad.datasource.CarReportsSource;
 import org.apache.flink.api.common.typeinfo.TypeHint;
-import org.apache.flink.api.java.tuple.Tuple15;
+//import org.apache.flink.api.java.tuple.Tuple15;
+import scala.Tuple15;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.AllWindowedStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -25,7 +26,7 @@ public class CarReportsSourceTest {
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
         DataStream<Tuple15<Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer,
-                Integer, Integer, Integer, Integer, Integer, Integer>> reports =
+                        Integer, Integer, Integer, Integer, Integer, Integer>> reports =
                 env.addSource(new CarReportsSource<Tuple15<Integer, Integer, Integer, Integer, Integer, Integer,
                         Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer>>(inputFile))
                         .returns(new TypeHint<Tuple15<Integer, Integer, Integer, Integer, Integer, Integer, Integer,
@@ -44,10 +45,7 @@ public class CarReportsSourceTest {
 
                 String out = "Window: " + String.valueOf(timeWindow.getStart()) + "\n";
                 for (Tuple15 report : iterable){
-                    for (int i = 0; i < 15; ++i) {
-                        out += report.getField(i) + " ";
-                    }
-                    out += "\n";
+                    out += report.toString() + "\n";
                 }
                 collector.collect(out);
             }

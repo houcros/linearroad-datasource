@@ -4,8 +4,8 @@ import de.twiechert.linroad.jdriver.DataDriver;
 import de.twiechert.linroad.jdriver.DataDriverLibrary;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.streaming.api.watermark.Watermark;
-import org.apache.flink.api.java.tuple.Tuple15;
-
+//import org.apache.flink.api.java.tuple.Tuple15;
+import scala.Tuple15;
 
 import java.io.*;
 import java.net.URISyntaxException;
