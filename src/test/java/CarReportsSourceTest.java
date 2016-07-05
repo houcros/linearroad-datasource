@@ -1,6 +1,6 @@
 import es.houcros.linearroad.datasource.CarReportsSource;
-import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.api.common.functions.ReduceFunction;
+import org.apache.flink.api.common.typeinfo.TypeHint;
+import org.apache.flink.api.java.tuple.Tuple15;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.AllWindowedStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -24,15 +24,28 @@ public class CarReportsSourceTest {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
-        DataStream<int[]> reports = env.addSource(new CarReportsSource<int[]>(inputFile)).returns(int[].class);
-        AllWindowedStream<int[], TimeWindow> b = reports.windowAll(TumblingEventTimeWindows.of(Time.seconds(3)));
-        b.apply(new AllWindowFunction<int[], Object, TimeWindow>() {
+        DataStream<Tuple15<Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer,
+                Integer, Integer, Integer, Integer, Integer, Integer>> reports =
+                env.addSource(new CarReportsSource<Tuple15<Integer, Integer, Integer, Integer, Integer, Integer,
+                        Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer>>(inputFile))
+                        .returns(new TypeHint<Tuple15<Integer, Integer, Integer, Integer, Integer, Integer, Integer,
+                                Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer>>() {});
+
+        AllWindowedStream<Tuple15<Integer, Integer, Integer, Integer, Integer, Integer, Integer,
+                Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer>, TimeWindow> b =
+                reports.windowAll(TumblingEventTimeWindows.of(Time.seconds(3)));
+        b.apply(new AllWindowFunction<Tuple15<Integer,Integer,Integer,Integer,Integer,Integer,
+                Integer,Integer,Integer,Integer,Integer,Integer,Integer,Integer,Integer>,
+                java.lang.Object, TimeWindow>() {
             @Override
-            public void apply(TimeWindow timeWindow, Iterable<int[]> iterable, Collector<Object> collector) throws Exception {
+            public void apply(TimeWindow timeWindow, Iterable<Tuple15<Integer, Integer, Integer, Integer, Integer,
+                    Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer>> iterable,
+                              Collector<java.lang.Object> collector) throws Exception {
+
                 String out = "Window: " + String.valueOf(timeWindow.getStart()) + "\n";
-                for (int[] report : iterable){
-                    for (int reportItem : report) {
-                        out += reportItem + " ";
+                for (Tuple15 report : iterable){
+                    for (int i = 0; i < 15; ++i) {
+                        out += report.getField(i) + " ";
                     }
                     out += "\n";
                 }

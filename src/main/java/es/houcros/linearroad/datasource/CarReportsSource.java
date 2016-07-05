@@ -1,9 +1,11 @@
 package es.houcros.linearroad.datasource;
 
-import org.apache.flink.hadoop.shaded.org.apache.http.impl.conn.SystemDefaultDnsResolver;
-import org.apache.flink.streaming.api.checkpoint.Checkpointed;
+import de.twiechert.linroad.jdriver.DataDriver;
+import de.twiechert.linroad.jdriver.DataDriverLibrary;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.streaming.api.watermark.Watermark;
+import org.apache.flink.api.java.tuple.Tuple15;
+
 
 import java.io.*;
 import java.net.URISyntaxException;
@@ -33,10 +35,10 @@ public class CarReportsSource<T> implements SourceFunction<T> {
         inputPath = Paths.get(resource.toURI()).toString();
     }
 
-    public void run(SourceContext<T> ctx) {
+    public void run(SourceContext<T> ctx) throws ClassCastException{
 
-        de.twiechert.linroad.jdriver.DataDriver dataDriver = new de.twiechert.linroad.jdriver.DataDriver();
-        dataDriver.getLibrary().startProgram(inputPath, new de.twiechert.linroad.jdriver.DataDriverLibrary.TupleReceivedCallback() {
+        DataDriver dataDriver = new de.twiechert.linroad.jdriver.DataDriver();
+        dataDriver.getLibrary().startProgram(inputPath, new DataDriverLibrary.TupleReceivedCallback() {
             @Override
             public void invoke(String s) {
                   /*
@@ -60,15 +62,20 @@ public class CarReportsSource<T> implements SourceFunction<T> {
 
                 // Cast the report to ints
                 String[] report = s.split(",");
-                int[] reportInt = new int[report.length];
-                for (int i = 0; i < report.length; ++i) reportInt[i] = Integer.valueOf(report[i].trim());
+                Tuple15<Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer,
+                                        Integer, Integer, Integer, Integer, Integer, Integer> reportTuple = new Tuple15<>
+                        (Integer.valueOf(report[0]), Integer.valueOf(report[1]), Integer.valueOf(report[2]),
+                                Integer.valueOf(report[3]), Integer.valueOf(report[4]), Integer.valueOf(report[5]),
+                                Integer.valueOf(report[6]), Integer.valueOf(report[7]), Integer.valueOf(report[8]),
+                                Integer.valueOf(report[9]), Integer.valueOf(report[10]), Integer.valueOf(report[11]),
+                                Integer.valueOf(report[12]), Integer.valueOf(report[13]), Integer.valueOf(report[14].trim()));
 
                 // The second element is the timestamp of the report
                 Long tmp = Long.valueOf(report[1])*1000;
 
                 // Collect
                 synchronized (ctx.getCheckpointLock()) {
-                    ctx.collectWithTimestamp((T)reportInt, tmp);
+                    ctx.collectWithTimestamp((T)reportTuple, tmp);
                     // We know that the data comes sorted by timestamp, so the watermarking is simple
                     if (tmp > currentTimestamp){
                         ctx.emitWatermark(new Watermark(tmp));
