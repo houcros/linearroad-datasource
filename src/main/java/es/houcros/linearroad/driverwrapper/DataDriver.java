@@ -7,11 +7,17 @@ import com.sun.jna.Native;
  */
 public class DataDriver {
 
-    private DataDriverLibrary instance = (DataDriverLibrary) Native.loadLibrary("datadriver", DataDriverLibrary.class);
+    private DataDriverLibrary instance;
     private String path;
 
 
     public DataDriver(String path) {
+        try {
+            instance = (DataDriverLibrary) Native.loadLibrary("datadriver", DataDriverLibrary.class);
+        } catch (Exception e) {
+            System.out.println("jna.library.path searches in: " + System.getProperty("jna.library.path"));
+            e.printStackTrace();
+        }
         System.setProperty("jna.library.path", "datadriver");
         //System.setProperty("jna.library.path", "/Library/Java/JavaVirtualMachines/jdk1.8.0_51.jdk/Contents/Home/jre/lib/libdatadriver.dylib");
         this.path = path;
@@ -19,6 +25,12 @@ public class DataDriver {
     }
 
     public DataDriver() {
+        try {
+            instance = (DataDriverLibrary) Native.loadLibrary("datadriver", DataDriverLibrary.class);
+        } catch (Exception e) {
+            System.out.println("jna.library.path searches in: " + System.getProperty("jna.library.path"));
+            e.printStackTrace();
+        }
         System.setProperty("jna.library.path", "datadriver");
 
     }
