@@ -33,20 +33,8 @@ public class DataDriver {
     }
 
     public DataDriver() {
-        try {
-            instance = (DataDriverLibrary) Native.loadLibrary("datadriver", DataDriverLibrary.class);
-        } catch (Exception e) {
-            List<String> lines = Arrays.asList(System.getProperty("jna.library.path"));
-            Path file = Paths.get("datadrivererrorfile.txt");
-            try {
-                Files.write(file, lines, Charset.forName("UTF-8"));
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
-            e.printStackTrace();
-        }
-        System.setProperty("jna.library.path", "datadriver");
-
+        instance = (DataDriverLibrary) Native.loadLibrary("datadriver", DataDriverLibrary.class);
+        System.setProperty("java.library.path", "/Library/Java/JavaVirtualMachines/jdk1.8.0_51.jdk/Contents/Home/jre/lib/datadriver");
     }
 
     public void runSample() {

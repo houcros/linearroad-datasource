@@ -12,5 +12,4 @@ public interface DataDriverLibrary extends Library {
         void invoke(String tuple);
     }
     int startProgram(String argv,  TupleReceivedCallback tupleReceivedCallback);
-    int  test();
 }
