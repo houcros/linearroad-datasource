@@ -1,7 +1,6 @@
 package es.houcros.linearroad.datasource;
 
-import de.twiechert.linroad.jdriver.DataDriver;
-import de.twiechert.linroad.jdriver.DataDriverLibrary;
+import es.houcros.linearroad.driverwrapper.*;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.streaming.api.watermark.Watermark;
 //import org.apache.flink.api.java.tuple.Tuple15;
@@ -37,7 +36,7 @@ public class CarReportsSource<T> implements SourceFunction<T> {
 
     public void run(SourceContext<T> ctx) throws ClassCastException{
 
-        DataDriver dataDriver = new de.twiechert.linroad.jdriver.DataDriver();
+        DataDriver dataDriver = new DataDriver();
         dataDriver.getLibrary().startProgram(inputPath, new DataDriverLibrary.TupleReceivedCallback() {
             @Override
             public void invoke(String s) {
