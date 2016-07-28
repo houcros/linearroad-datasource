@@ -7,12 +7,6 @@ import com.sun.jna.Native;
  */
 public class DataDriver {
 
-    // provide as argument
-    public static void main(String[] args) {
-        DataDriver dataDriver = new DataDriver(args[0]);
-        dataDriver.runSample();
-    }
-
     private DataDriverLibrary instance = (DataDriverLibrary) Native.loadLibrary("datadriver", DataDriverLibrary.class);
     private String path;
 
