@@ -2,6 +2,14 @@ package es.houcros.linearroad.driverwrapper;
 
 import com.sun.jna.Native;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Created by houcros on 28/07/16.
  */
@@ -28,7 +36,13 @@ public class DataDriver {
         try {
             instance = (DataDriverLibrary) Native.loadLibrary("datadriver", DataDriverLibrary.class);
         } catch (Exception e) {
-            System.err.println("jna.library.path searches in: " + System.getProperty("jna.library.path"));
+            List<String> lines = Arrays.asList(System.getProperty("jna.library.path"));
+            Path file = Paths.get("datadrivererrorfile.txt");
+            try {
+                Files.write(file, lines, Charset.forName("UTF-8"));
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
             e.printStackTrace();
         }
         System.setProperty("jna.library.path", "datadriver");
