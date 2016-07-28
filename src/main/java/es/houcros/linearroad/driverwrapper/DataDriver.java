@@ -20,21 +20,16 @@ public class DataDriver {
 
 
     public DataDriver(String path) {
-        try {
-            instance = (DataDriverLibrary) Native.loadLibrary("datadriver", DataDriverLibrary.class);
-        } catch (Exception e) {
-            System.err.println("jna.library.path searches in: " + System.getProperty("jna.library.path"));
-            e.printStackTrace();
-        }
-        System.setProperty("jna.library.path", "datadriver");
-        //System.setProperty("jna.library.path", "/Library/Java/JavaVirtualMachines/jdk1.8.0_51.jdk/Contents/Home/jre/lib/libdatadriver.dylib");
+        instance = (DataDriverLibrary) Native.loadLibrary("datadriver", DataDriverLibrary.class);
+        System.setProperty("jna.library.path", "ibdatadriver");
         this.path = path;
 
     }
 
     public DataDriver() {
+        System.setProperty("jna.debug_load", "true");
+        System.setProperty("jna.library.path", "/Library/Java/JavaVirtualMachines/jdk1.8.0_51.jdk/Contents/Home/jre/lib");
         instance = (DataDriverLibrary) Native.loadLibrary("datadriver", DataDriverLibrary.class);
-        System.setProperty("java.library.path", "/Library/Java/JavaVirtualMachines/jdk1.8.0_51.jdk/Contents/Home/jre/lib/datadriver");
     }
 
     public void runSample() {
