@@ -15,7 +15,7 @@ public class DataDriver {
         try {
             instance = (DataDriverLibrary) Native.loadLibrary("datadriver", DataDriverLibrary.class);
         } catch (Exception e) {
-            System.out.println("jna.library.path searches in: " + System.getProperty("jna.library.path"));
+            System.err.println("jna.library.path searches in: " + System.getProperty("jna.library.path"));
             e.printStackTrace();
         }
         System.setProperty("jna.library.path", "datadriver");
@@ -28,7 +28,7 @@ public class DataDriver {
         try {
             instance = (DataDriverLibrary) Native.loadLibrary("datadriver", DataDriverLibrary.class);
         } catch (Exception e) {
-            System.out.println("jna.library.path searches in: " + System.getProperty("jna.library.path"));
+            System.err.println("jna.library.path searches in: " + System.getProperty("jna.library.path"));
             e.printStackTrace();
         }
         System.setProperty("jna.library.path", "datadriver");
