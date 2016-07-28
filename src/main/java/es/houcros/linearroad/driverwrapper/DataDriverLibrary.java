@@ -8,7 +8,6 @@ import com.sun.jna.Library;
  */
 public interface DataDriverLibrary extends Library {
 
-
     interface TupleReceivedCallback extends Callback {
         void invoke(String tuple);
     }
