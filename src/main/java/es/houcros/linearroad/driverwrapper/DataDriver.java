@@ -27,8 +27,8 @@ public class DataDriver {
     }
 
     public DataDriver() {
-        System.setProperty("jna.debug_load", "true");
-        System.setProperty("jna.library.path", "/Library/Java/JavaVirtualMachines/jdk1.8.0_51.jdk/Contents/Home/jre/lib");
+        //System.setProperty("jna.debug_load", "true");
+        System.setProperty("jna.library.path", "/usr/local/lib");
         instance = (DataDriverLibrary) Native.loadLibrary("datadriver", DataDriverLibrary.class);
     }
 
