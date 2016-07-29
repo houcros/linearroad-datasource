@@ -21,14 +21,14 @@ public class DataDriver {
 
     public DataDriver(String path) {
         instance = (DataDriverLibrary) Native.loadLibrary("datadriver", DataDriverLibrary.class);
-        System.setProperty("jna.library.path", "/usr/local/lib:/usr/lib");
+        System.setProperty("jna.library.path", "/usr/local/lib:/usr/lib:/home/hadoop/bundles/peel-linearroad/utils");
         this.path = path;
 
     }
 
     public DataDriver() {
         //System.setProperty("jna.debug_load", "true");
-        System.setProperty("jna.library.path", "/usr/local/lib:/usr/lib");
+        System.setProperty("jna.library.path", "/usr/local/lib:/usr/lib:/home/hadoop/bundles/peel-linearroad/utils");
         instance = (DataDriverLibrary) Native.loadLibrary("datadriver", DataDriverLibrary.class);
     }
 
