@@ -21,14 +21,14 @@ public class DataDriver {
 
     public DataDriver(String path) {
         instance = (DataDriverLibrary) Native.loadLibrary("datadriver", DataDriverLibrary.class);
-        System.setProperty("jna.library.path", "ibdatadriver");
+        System.setProperty("jna.library.path", "/usr/local/lib:/usr/lib");
         this.path = path;
 
     }
 
     public DataDriver() {
         //System.setProperty("jna.debug_load", "true");
-        System.setProperty("jna.library.path", "/usr/local/lib");
+        System.setProperty("jna.library.path", "/usr/local/lib:/usr/lib");
         instance = (DataDriverLibrary) Native.loadLibrary("datadriver", DataDriverLibrary.class);
     }
 
