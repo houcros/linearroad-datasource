@@ -20,33 +20,16 @@ public class DataDriver {
 
 
     public DataDriver(String path) {
-        try {
-            instance = (DataDriverLibrary) Native.loadLibrary("datadriver", DataDriverLibrary.class);
-        } catch (Exception e) {
-            System.err.println("jna.library.path searches in: " + System.getProperty("jna.library.path"));
-            e.printStackTrace();
-        }
-        System.setProperty("jna.library.path", "datadriver");
-        //System.setProperty("jna.library.path", "/Library/Java/JavaVirtualMachines/jdk1.8.0_51.jdk/Contents/Home/jre/lib/libdatadriver.dylib");
+        instance = (DataDriverLibrary) Native.loadLibrary("datadriver", DataDriverLibrary.class);
+        System.setProperty("jna.library.path", "/usr/local/lib:/usr/lib:/home/hadoop/bundles/peel-linearroad/utils");
         this.path = path;
 
     }
 
     public DataDriver() {
-        try {
-            instance = (DataDriverLibrary) Native.loadLibrary("datadriver", DataDriverLibrary.class);
-        } catch (Exception e) {
-            List<String> lines = Arrays.asList(System.getProperty("jna.library.path"));
-            Path file = Paths.get("datadrivererrorfile.txt");
-            try {
-                Files.write(file, lines, Charset.forName("UTF-8"));
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
-            e.printStackTrace();
-        }
-        System.setProperty("jna.library.path", "datadriver");
-
+        //System.setProperty("jna.debug_load", "true");
+        System.setProperty("jna.library.path", "/usr/local/lib:/usr/lib:/home/hadoop/bundles/peel-linearroad/utils");
+        instance = (DataDriverLibrary) Native.loadLibrary("datadriver", DataDriverLibrary.class);
     }
 
     public void runSample() {

@@ -36,7 +36,13 @@ public class CarReportsSource<T> implements SourceFunction<T> {
 
     public void run(SourceContext<T> ctx) throws ClassCastException{
 
-        DataDriver dataDriver = new DataDriver();
+        DataDriver dataDriver = null;
+        try {
+            dataDriver = new DataDriver();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("\n\n\n\n\n\n\n\n\n\n########################" + System.getProperty("jna.library.path"));
+        }
         dataDriver.getLibrary().startProgram(inputPath, new DataDriverLibrary.TupleReceivedCallback() {
             @Override
             public void invoke(String s) {
