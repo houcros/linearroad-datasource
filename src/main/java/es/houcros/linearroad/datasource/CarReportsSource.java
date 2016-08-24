@@ -7,9 +7,12 @@ import org.apache.flink.streaming.api.watermark.Watermark;
 import scala.Tuple15;
 
 import java.io.*;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by houcros on 19/06/16.
@@ -29,9 +32,12 @@ public class CarReportsSource<T> implements SourceFunction<T> {
 
     }
 
-    public CarReportsSource(String inputFile) throws FileNotFoundException, URISyntaxException {
-        URL resource = CarReportsSource.class.getClassLoader().getResource(inputFile);
-        inputPath = Paths.get(resource.toURI()).toString();
+    public CarReportsSource(String inputFile) throws IOException, URISyntaxException {
+        final URI uri = CarReportsSource.class.getClassLoader().getResource(inputFile).toURI();
+        Map<String, String> env = new HashMap<>();
+        env.put("create", "true");
+        FileSystem zipfs = FileSystems.newFileSystem(uri, env);
+        inputPath = Paths.get(uri).toString();
     }
 
     public void run(SourceContext<T> ctx) throws ClassCastException{
